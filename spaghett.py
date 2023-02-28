@@ -19,10 +19,9 @@ IGNORE_DIR = Path(
     r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy\flask_test_env')
 
 
-graph_nodes: set[str] = set()
 graph_edges: list[tuple] = []
 
-graph_nodes2: set[Node] = set()
+graph_nodes: set[Node] = set()
 graph_edges2: list[Edge] = []
 # ----------------------------------------------------------------------------
 
@@ -63,13 +62,18 @@ def make_node(node_id: str | int) -> Node:
 
     Args:
         node_id (str | int): Node ID
+
+    Returns:
+        (Node): Node object for the node_id
     """
+    # Format stdlib modules
     if node_id in stdlib_module_names:
         return Node(n_id=node_id,
                     label=node_id,
                     title=node_id,
                     level=0,
                     color='red')
+    # Format default
     return Node(n_id=node_id,
                 label=node_id,
                 title=node_id)
@@ -77,7 +81,7 @@ def make_node(node_id: str | int) -> Node:
 
 def make_edge(from_node: str,
               to_node: str,
-              edge_title: str = None) -> None:
+              edge_title: str = None) -> Edge:
     """Makes an edge item.
 
     Args:
@@ -85,7 +89,9 @@ def make_edge(from_node: str,
         to_node (str): Second node (referenced module)
         edge_title (str): Label for the edge (what is being imported)
     """
-    graph_edges.append((from_node, to_node, edge_title))
+    return Edge(from_node=from_node,
+                title=edge_title,
+                to_node=to_node)
 
 
 class ImportLister(ast.NodeVisitor):
@@ -98,8 +104,9 @@ class ImportLister(ast.NodeVisitor):
         """Grab Imports from the module"""
 
         for item in node.names:
-            graph_nodes2.add(make_node(item.name))
-            make_edge(self.src_module, item.name, item.name)
+            graph_nodes.add(make_node(item.name))
+            graph_edges2.append(
+                make_edge(self.src_module, item.name, item.name))
 
         self.generic_visit(node)
 
@@ -114,40 +121,28 @@ class FromImportLister(ast.NodeVisitor):
         """Grab From * Import ** from the module"""
 
         for item in node.names:
-            graph_nodes2.add(make_node(node.module))
-            make_edge(self.src_module, node.module, item.name)
+            graph_nodes.add(make_node(node.module))
+            graph_edges2.append(
+                make_edge(self.src_module, node.module, item.name))
 
         self.generic_visit(node)
 
 
-def ast_test(myfile: Path, src_module: str):
+def parse_file(myfile: Path):
     """Read and parse"""
 
-    print('ast_test START')
+    # Get the module relative path since you can have modules with same names
+    # in different paths/packages.
+    module = str(myfile.relative_to(FOLDER_PATH)).lower().replace(
+        '.py', '').replace('\\', '.')
+
+    # Open and read the module/python file.
     with open(myfile, encoding='utf-8') as opened:
         code = opened.read()
 
     node = ast.parse(code)
-    ImportLister(src_module=src_module).visit(node)
-    FromImportLister(src_module=src_module).visit(node)
-    print('ast_test END\n')
-
-
-def mf_funct(files: list[Path]):
-    """Finds imports on all files
-
-    Args:
-        files (list[Path]): Python filepaths
-    """
-
-    for file_ in files:
-        # Lowercases the filepath, replaces .py with nothing, replaces \ with .
-        module = str(file_.relative_to(FOLDER_PATH)).lower().replace(
-            '.py', '').replace('\\', '.')
-        print(f'MODULE: {module}')
-        graph_nodes.add(module)
-
-        ast_test(file_, module)
+    ImportLister(src_module=module).visit(node)
+    FromImportLister(src_module=module).visit(node)
 
 
 if __name__ == '__main__':
@@ -155,9 +150,12 @@ if __name__ == '__main__':
 
     files = get_files(FOLDER_PATH, IGNORE_DIR)
 
-    mf_funct(files)
+    # Parse files and get graph nodes and edges.
+    for file_ in files:
+        parse_file(file_)
+
     print('\nMODULES')
-    for i in graph_nodes2:
+    for i in graph_nodes:
         print(i)
     print('\nEDGES')
     for i in graph_edges2:

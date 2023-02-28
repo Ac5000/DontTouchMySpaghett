@@ -29,7 +29,7 @@ class Edge:
     from_node: str | int
     title: str
     to_node: str | int
-    value: int
+    # value: int
     width: int = 1
     arrow_strikethrough: bool = True
     hidden: bool = False
