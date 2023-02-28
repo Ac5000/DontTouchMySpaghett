@@ -22,7 +22,7 @@ IGNORE_DIR = Path(
 graph_nodes: set[str] = set()
 graph_edges: list[tuple] = []
 
-graph_nodes2: list[Node] = []
+graph_nodes2: set[Node] = set()
 graph_edges2: list[Edge] = []
 # ----------------------------------------------------------------------------
 
@@ -58,14 +58,21 @@ def get_files(root_dir: Path = None,
     return pyfiles2
 
 
-def make_node(node_id: str | int) -> None:
+def make_node(node_id: str | int) -> Node:
     """Make a node for the graph.
 
     Args:
         node_id (str | int): Node ID
     """
     if node_id in stdlib_module_names:
-        print('loop')
+        return Node(n_id=node_id,
+                    label=node_id,
+                    title=node_id,
+                    level=0,
+                    color='red')
+    return Node(n_id=node_id,
+                label=node_id,
+                title=node_id)
 
 
 def make_edge(from_node: str,
@@ -89,9 +96,11 @@ class ImportLister(ast.NodeVisitor):
 
     def visit_Import(self, node: ast.Import) -> Any:
         """Grab Imports from the module"""
+
         for item in node.names:
-            graph_nodes.add(item.name)
+            graph_nodes2.add(make_node(item.name))
             make_edge(self.src_module, item.name, item.name)
+
         self.generic_visit(node)
 
 
@@ -105,7 +114,7 @@ class FromImportLister(ast.NodeVisitor):
         """Grab From * Import ** from the module"""
 
         for item in node.names:
-            graph_nodes.add(node.module)
+            graph_nodes2.add(make_node(node.module))
             make_edge(self.src_module, node.module, item.name)
 
         self.generic_visit(node)
@@ -143,17 +152,16 @@ def mf_funct(files: list[Path]):
 
 if __name__ == '__main__':
     print('CODE STARTING!')
-    files = get_files(FOLDER_PATH, IGNORE_DIR)
-    for file_ in files:
-        print(file_)
 
-    # mf_funct(files_to_parse)
-    # print('\nMODULES')
-    # for i in graph_nodes:
-    #     print(i)
-    # print('\nEDGES')
-    # for i in graph_edges:
-    #     print(i)
+    files = get_files(FOLDER_PATH, IGNORE_DIR)
+
+    mf_funct(files)
+    print('\nMODULES')
+    for i in graph_nodes2:
+        print(i)
+    print('\nEDGES')
+    for i in graph_edges2:
+        print(i)
 
     # myspaghett = Graph(graph_nodes, graph_edges, is_directed=True)
 

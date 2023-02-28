@@ -10,13 +10,13 @@ from pyvis.network import Network
 # ----------------------------------------------------------------------------
 
 
-@dataclass
+@dataclass(frozen=True)
 class Node:
     """Class for graph nodes"""
     n_id: str | int
     label: str | int
-    level: int
     title: str
+    level: int = 1
     physics: bool = True
     shape: str = 'ellipse'
     size: int = 25
@@ -26,12 +26,12 @@ class Node:
 @dataclass
 class Edge:
     """Class for graph edges"""
-    arrow_strikethrough: bool
     from_node: str | int
     title: str
     to_node: str | int
     value: int
-    width: int
+    width: int = 1
+    arrow_strikethrough: bool = True
     hidden: bool = False
     physics: bool = True
 
