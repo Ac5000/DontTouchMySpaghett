@@ -16,10 +16,10 @@ class Node:
     n_id: str | int
     label: str | int
     level: int
+    title: str
     physics: bool = True
     shape: str = 'ellipse'
     size: int = 25
-    title: str
     color: str = 'blue'
 
 
@@ -28,12 +28,12 @@ class Edge:
     """Class for graph edges"""
     arrow_strikethrough: bool
     from_node: str | int
-    hidden: bool = False
-    physics: bool = True
     title: str
     to_node: str | int
     value: int
     width: int
+    hidden: bool = False
+    physics: bool = True
 
 
 def add_node_objects(nodes: list[Node],

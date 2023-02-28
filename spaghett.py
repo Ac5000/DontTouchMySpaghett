@@ -5,40 +5,60 @@ Used for testing code before putting it in the correct module.
 
 # Imports
 import ast
-import glob
+from glob import iglob
 from pathlib import Path
 from sys import stdlib_module_names
 from typing import Any
 
-from graph import (Node,Edge, make_graph)
+from graph import (Node, Edge, make_graph)
 # ----------------------------------------------------------------------------
 
 # Variables/Constants
 FOLDER_PATH = Path(r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy')
-PY_FILES = r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy\**\*.py'
-SINGLE_FILE_TEST = Path(
-    r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy\graph_testing.py')
-
 IGNORE_DIR = Path(
     r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy\flask_test_env')
 
-files_to_parse: list[Path] = []
+
 graph_nodes: set[str] = set()
 graph_edges: list[tuple] = []
-IGNORES: list[str] = ['__doc__']
-graph_nodes2: list[Node]
+
+graph_nodes2: list[Node] = []
+graph_edges2: list[Edge] = []
 # ----------------------------------------------------------------------------
 
-# Grabs all .py files recursively. But also grabs the virtenv...
-pyfiles = list(glob.glob(PY_FILES, root_dir=FOLDER_PATH, recursive=True))
 
-for pyfile in pyfiles:
-    # Ignore paths coming from the directory to ignore.
-    if not Path(pyfile).is_relative_to(IGNORE_DIR):
-        files_to_parse.append(Path(pyfile))
+def get_files(root_dir: Path = None,
+              ignore_dir: Path = None) -> list[Path]:
+    """Get .PY files from the root_dir
+
+    Args:
+        root_dir (Path): Directory to start looking.
+        ignore_dir (Path, optional): Directory to ignore.
+
+    Returns:
+        list[Path]: List of python files to parse
+    """
+    pyfiles: list[Path] = []
+    pathname: str = str(root_dir) + r'\**\*.py'
+
+    # Grabs all .py files recursively.
+    for item in iglob(pathname, root_dir=root_dir, recursive=True):
+        pyfiles.append(Path(item))
+
+    # No ignore, return what we found immediately.
+    if ignore_dir is None:
+        return pyfiles
+
+    # Remove files found in the ignore_dir.
+    pyfiles2: list[Path] = []
+    for pyfile in pyfiles:
+        if not pyfile.is_relative_to(ignore_dir):
+            pyfiles2.append(pyfile)
+
+    return pyfiles2
 
 
-def make_node(node_id: str | int):
+def make_node(node_id: str | int) -> None:
     """Make a node for the graph.
 
     Args:
@@ -48,7 +68,9 @@ def make_node(node_id: str | int):
         print('loop')
 
 
-def make_edge(from_node: str, to_node: str, edge_title: str = None):
+def make_edge(from_node: str,
+              to_node: str,
+              edge_title: str = None) -> None:
     """Makes an edge item.
 
     Args:
@@ -121,15 +143,19 @@ def mf_funct(files: list[Path]):
 
 if __name__ == '__main__':
     print('CODE STARTING!')
-    mf_funct(files_to_parse)
-    print('\nMODULES')
-    for i in graph_nodes:
-        print(i)
-    print('\nEDGES')
-    for i in graph_edges:
-        print(i)
+    files = get_files(FOLDER_PATH, IGNORE_DIR)
+    for file_ in files:
+        print(file_)
 
-    myspaghett = Graph(graph_nodes, graph_edges, is_directed=True)
+    # mf_funct(files_to_parse)
+    # print('\nMODULES')
+    # for i in graph_nodes:
+    #     print(i)
+    # print('\nEDGES')
+    # for i in graph_edges:
+    #     print(i)
 
-    make_graph(myspaghett, "spaghett.html")
+    # myspaghett = Graph(graph_nodes, graph_edges, is_directed=True)
+
+    # make_graph(myspaghett, "spaghett.html")
     print('CODE FINISHED!')
