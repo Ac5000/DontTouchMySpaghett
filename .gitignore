@@ -364,3 +364,9 @@ FodyWeavers.xsd
 
 # Ignore the virtual environment
 .venv
+
+# Ignore the config file until I figure out how to send a "default" version of it.
+config.ini
+
+# Ignore spaghett.html since it could have your private code in it.
+spaghett.html

@@ -5,6 +5,7 @@ Used for testing code before putting it in the correct module.
 
 # Imports
 import ast
+import configparser
 from glob import iglob
 from pathlib import Path
 from sys import stdlib_module_names
@@ -13,11 +14,13 @@ from typing import Any
 from graph import (Node, Edge, make_graph)
 # ----------------------------------------------------------------------------
 
-# Variables/Constants
-FOLDER_PATH = Path(r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy')
-IGNORE_DIR = Path(
-    r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy\flask_test_env')
+# Grab config file settings.
+config = configparser.ConfigParser()
+config.read('config.ini')
 
+# Variables/Constants
+FOLDER_PATH = Path(config['CONFIG']['FOLDER_PATH'])
+IGNORE_DIR = Path(config['CONFIG']['IGNORE_DIR'])
 graph_nodes: set[Node] = set()
 graph_edges: list[Edge] = []
 # ----------------------------------------------------------------------------
