@@ -18,7 +18,7 @@ class Node:
     title: str
     level: int = 1
     physics: bool = True
-    shape: str = 'ellipse'
+    shape: str = 'dot'
     size: int = 25
     color: str = 'blue'
 
@@ -65,12 +65,11 @@ def add_edge_objects(edges: list[Edge],
     """
     for edge in edges:
         graph.add_edge(arrowStrikethrough=edge.arrow_strikethrough,
-                       from_=edge.from_node,
+                       source=edge.from_node,
                        hidden=edge.hidden,
                        physics=edge.physics,
                        title=edge.title,
                        to=edge.to_node,
-                       value=edge.value,
                        width=edge.width)
 
 
@@ -88,14 +87,14 @@ def make_graph(nodes: list[Node],
     my_graph = Network(height='1000px',
                        width='75%',
                        directed=True,
-                       bgcolor='#6d6d73')
-
-    # Show the buttons for adjusting the graph
-    my_graph.show_buttons()
+                       bgcolor='#d3dbe3')
 
     # Add the nodes and edges
     add_node_objects(nodes, my_graph)
     add_edge_objects(edges, my_graph)
 
+    # Show the buttons for adjusting the graph
+    my_graph.show_buttons()
+
     # Make the html file
-    my_graph.show(graph_filename)
+    my_graph.show(graph_filename, notebook=False)

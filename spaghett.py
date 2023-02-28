@@ -18,11 +18,8 @@ FOLDER_PATH = Path(r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy')
 IGNORE_DIR = Path(
     r'C:\Users\burns\OneDrive\Repos\FlaskTesting_Copy\flask_test_env')
 
-
-graph_edges: list[tuple] = []
-
 graph_nodes: set[Node] = set()
-graph_edges2: list[Edge] = []
+graph_edges: list[Edge] = []
 # ----------------------------------------------------------------------------
 
 
@@ -72,7 +69,8 @@ def make_node(node_id: str | int) -> Node:
                     label=node_id,
                     title=node_id,
                     level=0,
-                    color='red')
+                    color='red',
+                    shape='ellipse')
     # Format default
     return Node(n_id=node_id,
                 label=node_id,
@@ -104,9 +102,11 @@ class ImportLister(ast.NodeVisitor):
         """Grab Imports from the module"""
 
         for item in node.names:
+            graph_nodes.add(make_node(self.src_module))
             graph_nodes.add(make_node(item.name))
-            graph_edges2.append(
-                make_edge(self.src_module, item.name, item.name))
+            graph_edges.append(make_edge(from_node=item.name,
+                                         to_node=self.src_module,
+                                         edge_title=item.name))
 
         self.generic_visit(node)
 
@@ -121,9 +121,11 @@ class FromImportLister(ast.NodeVisitor):
         """Grab From * Import ** from the module"""
 
         for item in node.names:
+            graph_nodes.add(make_node(self.src_module))
             graph_nodes.add(make_node(node.module))
-            graph_edges2.append(
-                make_edge(self.src_module, node.module, item.name))
+            graph_edges.append(make_edge(from_node=node.module,
+                                         to_node=self.src_module,
+                                         edge_title=item.name))
 
         self.generic_visit(node)
 
@@ -158,10 +160,10 @@ if __name__ == '__main__':
     for i in graph_nodes:
         print(i)
     print('\nEDGES')
-    for i in graph_edges2:
+    for i in graph_edges:
         print(i)
 
-    # myspaghett = Graph(graph_nodes, graph_edges, is_directed=True)
-
-    # make_graph(myspaghett, "spaghett.html")
+    make_graph(nodes=graph_nodes,
+               edges=graph_edges,
+               graph_filename="spaghett.html")
     print('CODE FINISHED!')
