@@ -370,3 +370,4 @@ config.ini
 
 # Ignore spaghett.html since it could have your private code in it.
 spaghett.html
+my_spaghett.html
