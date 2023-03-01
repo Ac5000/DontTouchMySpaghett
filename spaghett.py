@@ -105,11 +105,11 @@ class ImportLister(ast.NodeVisitor):
         """Grab Imports from the module"""
 
         for item in node.names:
-            graph_nodes.add(make_node(self.src_module))
-            graph_nodes.add(make_node(item.name))
-            graph_edges.append(make_edge(from_node=item.name,
-                                         to_node=self.src_module,
-                                         edge_title=item.name))
+            if item.name is not None:
+                graph_nodes.add(make_node(item.name))
+                graph_edges.append(make_edge(from_node=item.name,
+                                             to_node=self.src_module,
+                                             edge_title=item.name))
 
         self.generic_visit(node)
 
@@ -124,11 +124,11 @@ class FromImportLister(ast.NodeVisitor):
         """Grab From * Import ** from the module"""
 
         for item in node.names:
-            graph_nodes.add(make_node(self.src_module))
-            graph_nodes.add(make_node(node.module))
-            graph_edges.append(make_edge(from_node=node.module,
-                                         to_node=self.src_module,
-                                         edge_title=item.name))
+            if node.module is not None:
+                graph_nodes.add(make_node(node.module))
+                graph_edges.append(make_edge(from_node=node.module,
+                                             to_node=self.src_module,
+                                             edge_title=item.name))
 
         self.generic_visit(node)
 
@@ -146,6 +146,7 @@ def parse_file(myfile: Path):
         code = opened.read()
 
     node = ast.parse(code)
+    graph_nodes.add(make_node(module))
     ImportLister(src_module=module).visit(node)
     FromImportLister(src_module=module).visit(node)
 
@@ -157,7 +158,10 @@ if __name__ == '__main__':
 
     # Parse files and get graph nodes and edges.
     for file_ in files:
-        parse_file(file_)
+        try:
+            parse_file(file_)
+        except UnicodeDecodeError:
+            print(f'Can not parse {file_}')
 
     print('\nMODULES')
     for i in graph_nodes:

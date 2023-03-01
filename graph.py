@@ -10,7 +10,7 @@ from pyvis.network import Network
 # ----------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, order=True)
 class Node:
     """Class for graph nodes"""
     n_id: str | int
@@ -23,7 +23,7 @@ class Node:
     color: str = 'blue'
 
 
-@dataclass
+@dataclass(order=True)
 class Edge:
     """Class for graph edges"""
     from_node: str | int
@@ -45,14 +45,17 @@ def add_node_objects(nodes: list[Node],
         graph (Network): Network object to add nodes
     """
     for node in nodes:
-        graph.add_node(n_id=node.n_id,
-                       label=node.label,
-                       level=node.level,
-                       physics=node.physics,
-                       shape=node.shape,
-                       size=node.size,
-                       title=node.title,
-                       color=node.color)
+        try:
+            graph.add_node(n_id=node.n_id,
+                           label=node.label,
+                           level=node.level,
+                           physics=node.physics,
+                           shape=node.shape,
+                           size=node.size,
+                           title=node.title,
+                           color=node.color)
+        except AssertionError:
+            print(f'Can not add node: {node}')
 
 
 def add_edge_objects(edges: list[Edge],
@@ -64,13 +67,16 @@ def add_edge_objects(edges: list[Edge],
         graph (Network): Network object to add edges
     """
     for edge in edges:
-        graph.add_edge(arrowStrikethrough=edge.arrow_strikethrough,
-                       source=edge.from_node,
-                       hidden=edge.hidden,
-                       physics=edge.physics,
-                       title=edge.title,
-                       to=edge.to_node,
-                       width=edge.width)
+        try:
+            graph.add_edge(arrowStrikethrough=edge.arrow_strikethrough,
+                           source=edge.from_node,
+                           hidden=edge.hidden,
+                           physics=edge.physics,
+                           title=edge.title,
+                           to=edge.to_node,
+                           width=edge.width)
+        except AssertionError:
+            print(f'Can not add edge: {edge}')
 
 
 def make_graph(nodes: list[Node],
