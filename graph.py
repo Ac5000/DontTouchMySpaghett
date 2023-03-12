@@ -81,7 +81,8 @@ def add_edge_objects(edges: list[Edge],
 
 def make_graph(nodes: list[Node],
                edges: list[Edge],
-               graph_filename: str = "spaghett.html") -> None:
+               graph_filename: str = "spaghett.html",
+               buttons: bool = False) -> None:
     """Makes the pyvis html graph file
 
     Args:
@@ -100,7 +101,8 @@ def make_graph(nodes: list[Node],
     add_edge_objects(edges, my_graph)
 
     # Show the buttons for adjusting the graph
-    my_graph.show_buttons()
+    if buttons:
+        my_graph.show_buttons()
 
     # Make the html file
     my_graph.show(graph_filename, notebook=False)
