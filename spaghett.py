@@ -104,12 +104,18 @@ class ImportLister(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import) -> Any:
         """Grab Imports from the module"""
 
+        ignore_stdlib = True
+
         for item in node.names:
             if item.name is not None:
-                graph_nodes.add(make_node(item.name))
-                graph_edges.append(make_edge(from_node=item.name,
-                                             to_node=self.src_module,
-                                             edge_title=item.name))
+                if (self.src_module in stdlib_module_names or item.name in stdlib_module_names) and ignore_stdlib:
+                    continue
+                else:
+                    graph_nodes.add(make_node(self.src_module))
+                    graph_nodes.add(make_node(item.name))
+                    graph_edges.append(make_edge(from_node=item.name,
+                                                 to_node=self.src_module,
+                                                 edge_title=item.name))
 
         self.generic_visit(node)
 
@@ -123,12 +129,18 @@ class FromImportLister(ast.NodeVisitor):
     def visit_ImportFrom(self, node: ast.ImportFrom) -> Any:
         """Grab From * Import ** from the module"""
 
+        ignore_stdlib = True
+
         for item in node.names:
             if node.module is not None:
-                graph_nodes.add(make_node(node.module))
-                graph_edges.append(make_edge(from_node=node.module,
-                                             to_node=self.src_module,
-                                             edge_title=item.name))
+                if (self.src_module in stdlib_module_names or node.module in stdlib_module_names) and ignore_stdlib:
+                    continue
+                else:
+                    graph_nodes.add(make_node(self.src_module))
+                    graph_nodes.add(make_node(node.module))
+                    graph_edges.append(make_edge(from_node=node.module,
+                                                 to_node=self.src_module,
+                                                 edge_title=item.name))
 
         self.generic_visit(node)
 
