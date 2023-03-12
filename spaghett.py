@@ -19,8 +19,13 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 # Variables/Constants
-FOLDER_PATH = Path(config['CONFIG']['FOLDER_PATH'])
-IGNORE_DIR = Path(config['CONFIG']['IGNORE_DIR'])
+START_PATH = Path(config['CONFIG']['START_PATH'])
+# Loop keys in the config.
+for key in config['IGNORE_PATHS']:
+    print(f'{key = }')
+    print(f'{config["IGNORE_PATHS"][key]}')
+
+IGNORE_DIR = Path(config['IGNORE_PATHS']['path1'])
 graph_nodes: set[Node] = set()
 graph_edges: list[Edge] = []
 # ----------------------------------------------------------------------------
@@ -150,7 +155,7 @@ def parse_file(myfile: Path):
 
     # Get the module relative path since you can have modules with same names
     # in different paths/packages.
-    module = str(myfile.relative_to(FOLDER_PATH)).lower().replace(
+    module = str(myfile.relative_to(START_PATH)).lower().replace(
         '.py', '').replace('\\', '.')
 
     # Open and read the module/python file.
@@ -166,7 +171,7 @@ def parse_file(myfile: Path):
 if __name__ == '__main__':
     print('CODE STARTING!')
 
-    files = get_files(FOLDER_PATH, IGNORE_DIR)
+    files = get_files(START_PATH, IGNORE_DIR)
 
     # Parse files and get graph nodes and edges.
     for file_ in files:
