@@ -1,7 +1,6 @@
 """
 spaghett.py
-Used for testing code before putting it in the correct module.
-TTEST
+Used for testing code before putting it in the correct module.TTEST
 """
 
 # Imports
